@@ -48,12 +48,17 @@ userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await userModel.find({ email });
+
     const hashed_password = user[0].password;
     if (user.length > 0) {
       bcrypt.compare(password, hashed_password, (err, result) => {
         if (result) {
           const token = jwt.sign({ userID: user[0]._id }, "masai");
-          res.send({ msg: "Login Successful", token: token });
+          return res.status(200).send({
+            message: "Login Successful",
+            username: user[0].name,
+            token,
+          });
         } else {
           res.send("Wrong Credential");
         }
@@ -66,6 +71,7 @@ userRouter.post("/login", async (req, res) => {
     console.log(err);
   }
 });
+
 
 module.exports = {
   userRouter,
