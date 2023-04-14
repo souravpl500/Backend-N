@@ -66,9 +66,11 @@ userRouter.post("/login", async (req, res) => {
     } else {
       res.send("Wrong Credential");
     }
-  } catch (err) {
-    res.send("Something went wrong");
-    console.log(err);
+  } catch (error) {
+    return res.status(400).send({
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 });
 
