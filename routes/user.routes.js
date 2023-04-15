@@ -35,12 +35,17 @@ userRouter.post("/register", async (req, res) => {
           password: secure_password,
         });
         await user.save();
-        res.send("Registered");
+        return res.status(201).send({
+          message: "User created successfully",
+        });
       }
     });
-  } catch (err) {
-    res.send("Error in registering the user");
-    console.log(err);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 });
 
@@ -54,19 +59,25 @@ userRouter.post("/login", async (req, res) => {
       bcrypt.compare(password, hashed_password, (err, result) => {
         if (result) {
           const token = jwt.sign({ userID: user[0]._id }, "masai");
+          console.log(user[0].name);
           return res.status(200).send({
             message: "Login Successful",
             username: user[0].name,
             token,
           });
         } else {
-          res.send("Wrong Credential");
+          return res.status(400).send({
+            message: "Invalid Credentials",
+          });
         }
       });
     } else {
-      res.send("Wrong Credential");
+      return res.status(400).send({
+        message: "User not found Please signup",
+      });
     }
   } catch (error) {
+    console.log(error);
     return res.status(400).send({
       message: "Something went wrong",
       error: error.message,
@@ -74,7 +85,7 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
-
 module.exports = {
   userRouter,
 };
+
