@@ -22,10 +22,9 @@ const middleware = async (req, res, next) => {
   }
 };
 
-cartRouter.use(middleware);
+
 
 cartRouter.get("/", async (req, res) => {
-  const { token } = req.headers;
   try {
     const cartProducts = await CartModel.find({}).populate("productId");
     return res.status(200).send({
@@ -40,7 +39,6 @@ cartRouter.get("/", async (req, res) => {
 });
 
 cartRouter.post("/", async (req, res) => {
-  const { token } = req.headers;
   const { productId, quantity } = req.body;
   try {
     const isExist = await CartModel.findOne({ productId });
