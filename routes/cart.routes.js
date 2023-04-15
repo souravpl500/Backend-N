@@ -19,6 +19,27 @@ const middleware = async (req, res, next) => {
       message: "Something went wrong",
       error: error.message,
     });
+const express = require("express");
+const { CartModel } = require("../Models/cart.model");
+const cartRouter = express.Router();
+
+const middleware = async (req, res, next) => {
+  const { token } = req.headers;
+  try {
+    if (!token) {
+      return res.status(400).send({
+        message: "Token not found",
+      });
+    }
+    const { userId } = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("userId: ", userId);
+    req.userId = userId;
+    next();
+  } catch (error) {
+    return res.status(400).send({
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 };
 
@@ -27,12 +48,7 @@ cartRouter.use(middleware);
 cartRouter.get("/", async (req, res) => {
   const { token } = req.headers;
   try {
-    const { userId } = req;
-    console.log("userId: ", userId);
-    const cartProducts = await CartModel.find({ userId })
-      .populate("productId")
-      .select("-userId");
-
+    const cartProducts = await CartModel.find({}).populate("productId");
     return res.status(200).send({
       cartProducts,
     });
@@ -48,10 +64,7 @@ cartRouter.post("/", async (req, res) => {
   const { token } = req.headers;
   const { productId, quantity } = req.body;
   try {
-    const { userId } = req;
-    console.log("userId: ", userId);
-
-    const isExist = await CartModel.findOne({ userId, productId });
+    const isExist = await CartModel.findOne({ productId });
 
     if (isExist) {
       return res.status(500).send({
@@ -60,18 +73,15 @@ cartRouter.post("/", async (req, res) => {
     }
 
     await CartModel.create({
-      userId,
       productId,
       quantity,
     });
 
-    const product = await CartModel.findOne({ userId, productId })
-      .populate("productId")
-      .select("-userId");
+    const products = await CartModel.find({ productId }).populate("productId");
 
     return res.status(201).send({
       message: "Product added to cart",
-      product,
+      products: products,
     });
   } catch (error) {
     return res.status(400).send({
@@ -83,10 +93,7 @@ cartRouter.post("/", async (req, res) => {
 
 cartRouter.put("/", async (req, res) => {
   try {
-    const { userId } = req;
-    console.log("userId: ", userId);
-
-    await CartModel.deleteMany({ userId });
+    await CartModel.deleteMany({});
 
     return res.status(200).send({
       message: "Order placed successfully",
@@ -102,9 +109,6 @@ cartRouter.put("/", async (req, res) => {
 cartRouter.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const { userId } = req;
-    console.log("userId: ", userId);
-
     await CartModel.findByIdAndDelete(id);
 
     return res.status(200).send({
@@ -119,3 +123,4 @@ cartRouter.delete("/:id", async (req, res) => {
 });
 
 module.exports = { cartRouter };
+
