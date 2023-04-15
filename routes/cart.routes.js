@@ -19,27 +19,6 @@ const middleware = async (req, res, next) => {
       message: "Something went wrong",
       error: error.message,
     });
-const express = require("express");
-const { CartModel } = require("../Models/cart.model");
-const cartRouter = express.Router();
-
-const middleware = async (req, res, next) => {
-  const { token } = req.headers;
-  try {
-    if (!token) {
-      return res.status(400).send({
-        message: "Token not found",
-      });
-    }
-    const { userId } = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("userId: ", userId);
-    req.userId = userId;
-    next();
-  } catch (error) {
-    return res.status(400).send({
-      message: "Something went wrong",
-      error: error.message,
-    });
   }
 };
 
