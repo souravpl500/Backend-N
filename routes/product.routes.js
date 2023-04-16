@@ -36,7 +36,6 @@ productRouter.post("/many", async (req, res) => {
     const newProduct = await ProductModel.insertMany(payload);
     res.status(201).send(newProduct);
   } catch (err) {
-    console.log("err :", err);
     res.status(400).send({ msg: err });
   }
 });
