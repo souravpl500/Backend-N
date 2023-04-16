@@ -11,7 +11,6 @@ const middleware = async (req, res, next) => {
       });
     }
     const { userId } = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("userId: ", userId);
     req.userId = userId;
     next();
   } catch (error) {
